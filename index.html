@@ -66,10 +66,10 @@
     <!-- כרטיס המשחק -->
     <section id="playCard" class="game-card">
       <p id="instructionBanner" class="instruction-banner">
-        לחצו על לחצן הפליי (▶️) כדי להטיל את הקוביות!
+        לחצו על כפתור הפעולה המתמטית (▶️) כדי לסובב את הקוביות!
       </p>
 
-      <!-- במת הקוביות + לחצן פליי -->
+      <!-- במת הקוביות + כפתורי פעולה מתמטית -->
       <div class="dice-stage" dir="ltr">
         <div class="die-wrapper">
           <div id="die1" class="die" aria-label="קובייה ראשונה">
@@ -78,10 +78,17 @@
           <span class="die-caption" id="dieCaption1">קובייה 1</span>
         </div>
 
-        <button type="button" id="btnRoll" class="play-btn" aria-label="הטל קוביות">
-          <span class="play-icon">▶️</span>
-          <span class="play-label" id="playBtnText">הטל קוביות</span>
-        </button>
+        <div class="operation-play-group" dir="rtl" role="group" aria-label="הפעלת קוביות לפי פעולה מתמטית">
+          <button type="button" id="btnRollAdd" class="play-btn op-add-btn pulse" aria-label="תרגיל חיבור">
+            <span class="play-op-icons">▶️ ➕</span>
+            <span class="play-label">חיבור</span>
+          </button>
+
+          <button type="button" id="btnRollSub" class="play-btn op-sub-btn pulse hidden" aria-label="תרגיל חיסור">
+            <span class="play-op-icons">▶️ ➖</span>
+            <span class="play-label">חיסור</span>
+          </button>
+        </div>
 
         <div class="die-wrapper">
           <div id="die2" class="die" aria-label="קובייה שנייה">

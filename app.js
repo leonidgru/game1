@@ -44,8 +44,8 @@ const die1El = document.getElementById('die1');
 const die2El = document.getElementById('die2');
 const pipGrid1 = document.getElementById('pipGrid1');
 const pipGrid2 = document.getElementById('pipGrid2');
-const btnRoll = document.getElementById('btnRoll');
-const playBtnText = document.getElementById('playBtnText');
+const btnRollAdd = document.getElementById('btnRollAdd');
+const btnRollSub = document.getElementById('btnRollSub');
 const instructionBanner = document.getElementById('instructionBanner');
 const equationSection = document.getElementById('equationSection');
 const equationHint = document.getElementById('equationHint');
@@ -293,16 +293,8 @@ function randomizeDiceColors() {
 }
 
 // הגרלת ערכי קוביות כך שהחיבור או החיסור יהיו בתחום ה-10
-function generateDiceValuesForRound() {
-  // קביעת פעולה לתרגיל הנוכחי
-  if (state.mode === 'add') {
-    state.currentOp = '+';
-  } else if (state.mode === 'sub') {
-    state.currentOp = '-';
-  } else {
-    state.currentOp = Math.random() < 0.5 ? '+' : '-';
-  }
-
+function generateDiceValuesForRound(chosenOp) {
+  state.currentOp = chosenOp;
   operatorSymbol.textContent = state.currentOp;
 
   if (state.currentOp === '+') {
@@ -334,16 +326,33 @@ function generateDiceValuesForRound() {
   }
 }
 
-// הטלת הקוביות בלחיצה על פליי
-function rollDice() {
+// עדכון תצוגת כפתורי הפעולה המתמטית לפי המצב הנבחר
+function updateOperationButtonsVisibility() {
+  if (state.mode === 'add') {
+    btnRollAdd.classList.remove('hidden');
+    btnRollSub.classList.add('hidden');
+  } else if (state.mode === 'sub') {
+    btnRollAdd.classList.add('hidden');
+    btnRollSub.classList.remove('hidden');
+  } else {
+    // מצב משולב - שני כפתורי הפעולה מוצגים לבחירת התלמיד
+    btnRollAdd.classList.remove('hidden');
+    btnRollSub.classList.remove('hidden');
+  }
+}
+
+// הטלת הקוביות בלחיצה על כפתור הפעולה המתמטית (+ חיבור / - חיסור)
+function rollDice(chosenOp) {
   if (state.questionSolved) return;
 
-  btnRoll.disabled = true;
-  btnRoll.classList.remove('pulse');
+  btnRollAdd.disabled = true;
+  btnRollSub.disabled = true;
+  btnRollAdd.classList.remove('pulse');
+  btnRollSub.classList.remove('pulse');
   feedbackBox.classList.add('hidden');
 
   randomizeDiceColors();
-  generateDiceValuesForRound();
+  generateDiceValuesForRound(chosenOp);
 
   die1El.classList.add('rolling');
   die2El.classList.add('rolling');
@@ -373,8 +382,8 @@ function finishRoll() {
   renderDieFace(pipGrid2, state.die2Value);
 
   state.hasRolled = true;
-  btnRoll.disabled = false;
-  playBtnText.textContent = 'הטל שוב';
+  btnRollAdd.disabled = false;
+  btnRollSub.disabled = false;
 
   // פתיחת משבצות התרגיל
   equationSection.classList.remove('locked');
@@ -464,7 +473,8 @@ function handleCorrectAnswer(val1, val2, res) {
   });
 
   btnCheck.disabled = true;
-  btnRoll.disabled = true;
+  btnRollAdd.disabled = true;
+  btnRollSub.disabled = true;
 
   showFeedback(true, 'מצוין! פתרון נכון! 👏🎉');
   playApplauseAndCheer();
@@ -524,11 +534,19 @@ function prepareQuestionRound() {
   state.mistakeOnCurrent = false;
 
   updateStatusHeader();
+  updateOperationButtonsVisibility();
   randomizeDiceColors();
 
-  playBtnText.textContent = 'הטל קוביות';
-  btnRoll.disabled = false;
-  btnRoll.classList.add('pulse');
+  btnRollAdd.disabled = false;
+  btnRollSub.disabled = false;
+  btnRollAdd.classList.add('pulse');
+  btnRollSub.classList.add('pulse');
+
+  if (state.mode === 'sub') {
+    operatorSymbol.textContent = '-';
+  } else if (state.mode === 'add') {
+    operatorSymbol.textContent = '+';
+  }
 
   equationSection.classList.add('locked');
   [inputNum1, inputNum2, inputResult].forEach((inp) => {
@@ -541,7 +559,13 @@ function prepareQuestionRound() {
   btnNext.classList.add('hidden');
   feedbackBox.classList.add('hidden');
 
-  instructionBanner.textContent = 'לחצו על לחצן הפליי (▶️) כדי להטיל את הקוביות!';
+  if (state.mode === 'add') {
+    instructionBanner.textContent = 'לחצו על כפתור החיבור (▶️ ➕) כדי לסובב את הקוביות!';
+  } else if (state.mode === 'sub') {
+    instructionBanner.textContent = 'לחצו על כפתור החיסור (▶️ ➖) כדי לסובב את הקוביות!';
+  } else {
+    instructionBanner.textContent = 'לחצו על כפתור הפעולה המתמטית (▶️ ➕ חיבור או ▶️ ➖ חיסור) כדי לסובב את הקוביות!';
+  }
 }
 
 function updateStatusHeader() {
@@ -674,7 +698,8 @@ function animateFireworks() {
 }
 
 // חיבור אירועים
-btnRoll.addEventListener('click', rollDice);
+btnRollAdd.addEventListener('click', () => rollDice('+'));
+btnRollSub.addEventListener('click', () => rollDice('-'));
 btnCheck.addEventListener('click', checkAnswer);
 btnNext.addEventListener('click', nextQuestion);
 btnRestart.addEventListener('click', restartGame);
@@ -736,7 +761,7 @@ totalQuestionsSelect.addEventListener('change', restartGame);
 
 btnSpeakInstruction.addEventListener('click', () => {
   speakHebrew(
-    'שלום תלמידים! לחצו על לחצן הפליי הירוק כדי לסובב את שתי הקוביות. לאחר שהקוביות נעצרות, ספרו כמה נקודות יש בכל קובייה, כתבו את המספרים במשבצות ופתרו את התרגיל!'
+    'שלום תלמידים! לחצו על כפתור החיבור או החיסור כדי לסובב את שתי הקוביות. לאחר שהקוביות נעצרות, ספרו כמה נקודות יש בכל קובייה, כתבו את המספרים במשבצות ופתרו את התרגיל!'
   );
 });
 
