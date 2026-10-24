@@ -1,0 +1,796 @@
+:root {
+  --bg-top: #fef9e7;
+  --bg-bottom: #e8f8f5;
+  --card-bg: #ffffff;
+  --text-main: #2c3e50;
+  --text-muted: #5d6d7e;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --success: #16a34a;
+  --success-bg: #dcfce7;
+  --error: #dc2626;
+  --error-bg: #fee2e2;
+  --accent-yellow: #f59e0b;
+  --die1-bg: #ff6b6b;
+  --die1-pip: #ffffff;
+  --die1-border: #e05656;
+  --die2-bg: #4ecdc4;
+  --die2-pip: #ffffff;
+  --die2-border: #3bb2a9;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Rubik', 'Arial Rounded MT Bold', Tahoma, sans-serif;
+  background: linear-gradient(135deg, var(--bg-top) 0%, #ebf5fb 50%, var(--bg-bottom) 100%);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* קנבס זיקוקים */
+#fireworksCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* סרגל עליון */
+.top-bar {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px;
+  margin-top: 10px;
+  background: #faf4e8;
+  border: 2px solid #f0e4cc;
+  border-radius: 22px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.site-logo {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand h1 {
+  font-size: 1.45rem;
+  color: #c20072;
+  font-weight: 800;
+}
+
+.brand-subtitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2b7bba;
+}
+
+.summary-logo {
+  height: 84px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  margin-bottom: 4px;
+}
+
+.mode-selector {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 14px;
+}
+
+.mode-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.mode-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.audio-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.icon-btn.active {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
+/* מיכל משחק */
+.game-container {
+  width: 100%;
+  max-width: 860px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1;
+}
+
+/* פאנל סטטוס */
+.status-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px 20px;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 220px;
+}
+
+#questionCounter {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.progress-bar-track {
+  flex: 1;
+  height: 14px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 20%;
+  background: linear-gradient(90deg, #34d399, #10b981);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.score-badges {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.badge {
+  background: #fef3c7;
+  color: #b45309;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.round-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.round-selector select {
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* כרטיס המשחק */
+.game-card {
+  background: var(--card-bg);
+  border-radius: 28px;
+  padding: 24px 28px;
+  box-shadow: 0 12px 32px rgba(30, 41, 59, 0.08);
+  border: 3px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.instruction-banner {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 12px 22px;
+  border-radius: 16px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-align: center;
+  width: 100%;
+  border: 2px dashed #bfdbfe;
+}
+
+/* במת הקוביות */
+.dice-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+
+.die-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.die-caption {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.die {
+  width: 132px;
+  height: 132px;
+  border-radius: 26px;
+  padding: 16px;
+  box-shadow:
+    0 10px 0 var(--die-border, #ccc),
+    0 14px 24px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.35s ease, transform 0.25s ease, box-shadow 0.35s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+#die1 {
+  background-color: var(--die1-bg);
+  --die-border: var(--die1-border);
+  --pip-color: var(--die1-pip);
+}
+
+#die2 {
+  background-color: var(--die2-bg);
+  --die-border: var(--die2-border);
+  --pip-color: var(--die2-pip);
+}
+
+.die.rolling {
+  animation: rollShake 0.65s infinite cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes rollShake {
+  0% { transform: rotate(0deg) scale(1); }
+  20% { transform: rotate(-18deg) scale(1.08) translateY(-8px); }
+  40% { transform: rotate(16deg) scale(0.96) translateY(4px); }
+  60% { transform: rotate(-14deg) scale(1.06) translateY(-6px); }
+  80% { transform: rotate(12deg) scale(0.98) translateY(3px); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.pip-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  place-items: center;
+}
+
+.pip {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--pip-color, #ffffff);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pip.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* כפתור פליי */
+.play-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(145deg, #22c55e, #16a34a);
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow:
+    0 8px 0 #15803d,
+    0 12px 24px rgba(22, 163, 74, 0.35);
+  transition: all 0.18s ease;
+}
+
+.play-btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 11px 0 #15803d,
+    0 16px 28px rgba(22, 163, 74, 0.45);
+}
+
+.play-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 4px 0 #15803d;
+}
+
+.play-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.play-btn.pulse {
+  animation: pulseGlow 1.6s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 8px 0 #15803d, 0 0 0 0 rgba(34, 197, 94, 0.55);
+  }
+  50% {
+    box-shadow: 0 8px 0 #15803d, 0 0 0 16px rgba(34, 197, 94, 0);
+  }
+}
+
+.play-icon {
+  font-size: 2.3rem;
+  line-height: 1;
+}
+
+.play-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* אזור התרגיל */
+.equation-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding-top: 8px;
+  border-top: 2px solid #f1f5f9;
+  transition: opacity 0.3s ease;
+}
+
+.equation-section.locked {
+  opacity: 0.5;
+}
+
+.equation-hint {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #475569;
+  text-align: center;
+}
+
+.equation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.eq-input {
+  width: 82px;
+  height: 82px;
+  border-radius: 20px;
+  border: 4px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-align: center;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+  -moz-appearance: textfield;
+}
+
+.eq-input::-webkit-outer-spin-button,
+.eq-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.eq-input:focus,
+.eq-input.active-field {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.15);
+  transform: translateY(-2px);
+}
+
+.result-input {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.eq-input.correct-field {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: #14532d;
+}
+
+.eq-input.wrong-field {
+  border-color: var(--error);
+  background: var(--error-bg);
+  color: #7f1d1d;
+  animation: shakeError 0.4s ease;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.eq-symbol {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #334155;
+  padding: 0 4px;
+}
+
+/* מקלדת מספרים מובנית */
+.numpad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 620px;
+}
+
+.num-key {
+  min-width: 48px;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 1.3rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #cbd5e1;
+  transition: all 0.12s ease;
+}
+
+.num-key:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+}
+
+.num-key:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #cbd5e1;
+}
+
+.num-key.clear-key {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+  box-shadow: 0 4px 0 #fca5a5;
+}
+
+/* כפתורי פעולה */
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.check-btn,
+.next-btn,
+.restart-btn {
+  padding: 14px 32px;
+  border-radius: 18px;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.check-btn {
+  background: linear-gradient(145deg, #4f46e5, #4338ca);
+  color: #ffffff;
+  box-shadow: 0 6px 0 #312e81;
+}
+
+.check-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.check-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.next-btn {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  color: #ffffff;
+  box-shadow: 0 6px 0 #92400e;
+  animation: bounceIn 0.4s ease;
+}
+
+.next-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* תיבת משוב */
+.feedback-box {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  animation: bounceIn 0.35s ease;
+}
+
+.feedback-box.success {
+  background: var(--success-bg);
+  color: #15803d;
+  border: 3px solid #86efac;
+}
+
+.feedback-box.error {
+  background: var(--error-bg);
+  color: #b91c1c;
+  border: 3px solid #fca5a5;
+}
+
+.feedback-icon {
+  font-size: 2.2rem;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  70% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* מסך סיום וגביע */
+.summary-card {
+  text-align: center;
+  padding: 36px 28px;
+}
+
+.trophy-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.trophy-graphic {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  animation: trophyFloat 2s ease-in-out infinite;
+}
+
+@keyframes trophyFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.05); }
+}
+
+.trophy-cup {
+  font-size: 7.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 10px 20px rgba(245, 158, 11, 0.4));
+}
+
+.trophy-number {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #78350f;
+  background: #fef08a;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #ca8a04;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.perfect-title {
+  font-size: 2.6rem;
+  color: #d97706;
+  font-weight: 900;
+}
+
+.regular-summary-header h2 {
+  font-size: 2.2rem;
+  color: #1e293b;
+  margin-top: 8px;
+}
+
+.summary-stars {
+  font-size: 4rem;
+}
+
+.summary-report-text {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #334155;
+  background: #f8fafc;
+  padding: 16px 26px;
+  border-radius: 18px;
+  border: 2px solid #e2e8f0;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.history-item {
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-item.perfect {
+  background: #dcfce7;
+  color: #166534;
+  border: 2px solid #86efac;
+}
+
+.history-item.retried {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 2px solid #fde047;
+}
+
+.restart-btn {
+  background: linear-gradient(145deg, #10b981, #059669);
+  color: #ffffff;
+  box-shadow: 0 6px 0 #047857;
+  margin-top: 8px;
+}
+
+.restart-btn:hover {
+  transform: translateY(-2px);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* התאמה למסכים קטנים */
+@media (max-width: 600px) {
+  .site-logo {
+    height: 58px;
+  }
+  .die {
+    width: 105px;
+    height: 105px;
+    padding: 12px;
+  }
+  .pip {
+    width: 18px;
+    height: 18px;
+  }
+  .play-btn {
+    width: 96px;
+    height: 96px;
+  }
+  .eq-input {
+    width: 68px;
+    height: 68px;
+    font-size: 1.8rem;
+  }
+  .dice-stage {
+    gap: 16px;
+  }
+}

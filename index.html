@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>משחק קוביות החשבון - חיבור וחיסור עד 10</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- קנבס לזיקוקים -->
+  <canvas id="fireworksCanvas"></canvas>
+
+  <!-- סרגל עליון -->
+  <header class="top-bar">
+    <div class="brand">
+      <img src="logo.png" alt="הוראה בהנעה - משולחנה של המורה זינובי אינה" class="site-logo" />
+      <div class="brand-titles">
+        <h1>🎲 קוביות החשבון</h1>
+        <span class="brand-subtitle">חיבור וחיסור בתחום ה-10</span>
+      </div>
+    </div>
+
+    <div class="mode-selector" role="group" aria-label="בחירת סוג תרגיל">
+      <button type="button" class="mode-btn active" data-mode="add">➕ חיבור</button>
+      <button type="button" class="mode-btn" data-mode="sub">➖ חיסור</button>
+      <button type="button" class="mode-btn" data-mode="mix">🎲 משולב</button>
+    </div>
+
+    <div class="audio-controls">
+      <button type="button" id="btnSpeakInstruction" class="icon-btn" title="הקראת הוראות">
+        🗣️ <span>הוראות</span>
+      </button>
+      <button type="button" id="btnMusicToggle" class="icon-btn" title="מוסיקת רקע">
+        🎵 <span id="musicStatusText">מוסיקה: כבוי</span>
+      </button>
+      <button type="button" id="btnSoundToggle" class="icon-btn active" title="צלילים ודיבוב">
+        🔊 <span id="soundStatusText">צלילים: פעיל</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- אזור משחק מרכזי -->
+  <main class="game-container">
+    <!-- מד התקדמות וניקוד -->
+    <section class="status-panel">
+      <div class="progress-info">
+        <span id="questionCounter">תרגיל 1 מתוך 5</span>
+        <div class="progress-bar-track">
+          <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+      <div class="score-badges">
+        <div class="badge correct-badge" title="פתרונות נכונים בניסיון ראשון">
+          ⭐ הצלחות: <strong id="scoreCount">0</strong>
+        </div>
+        <div class="round-selector">
+          <label for="totalQuestionsSelect">מספר תרגילים:</label>
+          <select id="totalQuestionsSelect">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- כרטיס המשחק -->
+    <section id="playCard" class="game-card">
+      <p id="instructionBanner" class="instruction-banner">
+        לחצו על לחצן הפליי (▶️) כדי להטיל את הקוביות!
+      </p>
+
+      <!-- במת הקוביות + לחצן פליי -->
+      <div class="dice-stage" dir="ltr">
+        <div class="die-wrapper">
+          <div id="die1" class="die" aria-label="קובייה ראשונה">
+            <div class="pip-grid" id="pipGrid1"></div>
+          </div>
+          <span class="die-caption" id="dieCaption1">קובייה 1</span>
+        </div>
+
+        <button type="button" id="btnRoll" class="play-btn" aria-label="הטל קוביות">
+          <span class="play-icon">▶️</span>
+          <span class="play-label" id="playBtnText">הטל קוביות</span>
+        </button>
+
+        <div class="die-wrapper">
+          <div id="die2" class="die" aria-label="קובייה שנייה">
+            <div class="pip-grid" id="pipGrid2"></div>
+          </div>
+          <span class="die-caption" id="dieCaption2">קובייה 2</span>
+        </div>
+      </div>
+
+      <!-- אזור התרגיל והמשבצות (מוצג משמאל לימין כמקובל בכתיבה מתמטית בישראל או כפי שנדרש 3+1=4) -->
+      <div id="equationSection" class="equation-section locked">
+        <div class="equation-hint" id="equationHint">
+          השלימו את המספרים במשבצות מתחת לקוביות ופתרו את התרגיל:
+        </div>
+
+        <!-- תרגיל בכיוון מתמטי ברור -->
+        <div class="equation-row" dir="ltr">
+          <input
+            type="number"
+            id="inputNum1"
+            class="eq-input"
+            min="0"
+            max="10"
+            inputmode="numeric"
+            placeholder="?"
+            aria-label="מספר ראשון בתרגיל"
+            disabled
+          />
+          <span id="operatorSymbol" class="eq-symbol">+</span>
+          <input
+            type="number"
+            id="inputNum2"
+            class="eq-input"
+            min="0"
+            max="10"
+            inputmode="numeric"
+            placeholder="?"
+            aria-label="מספר שני בתרגיל"
+            disabled
+          />
+          <span class="eq-symbol">=</span>
+          <input
+            type="number"
+            id="inputResult"
+            class="eq-input result-input"
+            min="0"
+            max="10"
+            inputmode="numeric"
+            placeholder="?"
+            aria-label="תוצאת התרגיל"
+            disabled
+          />
+        </div>
+
+        <!-- מקלדת מספרים ידידותית לילדים על המסך -->
+        <div class="numpad" aria-label="מקלדת מספרים">
+          <button type="button" class="num-key" data-val="0">0</button>
+          <button type="button" class="num-key" data-val="1">1</button>
+          <button type="button" class="num-key" data-val="2">2</button>
+          <button type="button" class="num-key" data-val="3">3</button>
+          <button type="button" class="num-key" data-val="4">4</button>
+          <button type="button" class="num-key" data-val="5">5</button>
+          <button type="button" class="num-key" data-val="6">6</button>
+          <button type="button" class="num-key" data-val="7">7</button>
+          <button type="button" class="num-key" data-val="8">8</button>
+          <button type="button" class="num-key" data-val="9">9</button>
+          <button type="button" class="num-key" data-val="10">10</button>
+          <button type="button" class="num-key clear-key" data-val="clear" title="מחיקה">⌫</button>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" id="btnCheck" class="check-btn" disabled>
+            ✔️ בדיקה
+          </button>
+          <button type="button" id="btnNext" class="next-btn hidden">
+            לתרגיל הבא ⬅️
+          </button>
+        </div>
+      </div>
+
+      <!-- אזור משוב לתלמיד -->
+      <div id="feedbackBox" class="feedback-box hidden" aria-live="polite">
+        <div id="feedbackIcon" class="feedback-icon"></div>
+        <div id="feedbackText" class="feedback-text"></div>
+      </div>
+    </section>
+
+    <!-- מסך סיום תרגול ודיווח -->
+    <section id="summaryCard" class="game-card summary-card hidden">
+      <img src="logo.png" alt="הוראה בהנעה - משולחנה של המורה זינובי אינה" class="summary-logo" />
+      <div id="trophyContainer" class="trophy-container hidden">
+        <div class="trophy-graphic">
+          <span class="trophy-cup">🏆</span>
+          <span class="trophy-number">1</span>
+        </div>
+        <h2 class="perfect-title">כל הכבוד!</h2>
+      </div>
+
+      <div id="regularSummaryHeader" class="regular-summary-header hidden">
+        <div class="summary-stars">🌟🎈</div>
+        <h2>סיימתם את התרגול!</h2>
+      </div>
+
+      <p id="summaryReportText" class="summary-report-text"></p>
+
+      <div id="historyList" class="history-list"></div>
+
+      <button type="button" id="btnRestart" class="restart-btn">
+        🔄 משחק חדש
+      </button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
